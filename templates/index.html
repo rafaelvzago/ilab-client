@@ -3,40 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Prompt</title>
+    <title>Question & Answer App</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Envie um Prompt</h1>
-    <form action="/submit" method="post">
-        <label for="prompt">Prompt:</label>
-        <textarea id="prompt" name="prompt" rows="4" cols="50"></textarea>
-        <br><br>
-        <button type="submit">Enviar</button>
-    </form>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-md rounded-lg p-8 max-w-4xl w-full">
+        <h1 class="text-2xl font-bold mb-6 text-center">Ask a Question</h1>
 
-    <div id="response"></div>
+        <!-- Error Message -->
+        <div id="error-message" class="mb-4 p-4 text-red-700 bg-red-100 rounded hidden">
+            <!-- Error text will be inserted here -->
+        </div>
 
+        <!-- Form -->
+        <form id="question-form" class="mb-6">
+            <div class="mb-4">
+                <label for="question" class="block text-gray-700 font-semibold mb-2">Enter your question:</label>
+                <textarea id="question" name="question" rows="4" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., What is the capital of France?" required></textarea>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors">Submit</button>
+            </div>
+        </form>
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="flex justify-center items-center mb-6 hidden">
+            <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+        </div>
+
+        <!-- Response Section -->
+        <div id="response-section" class="mt-8 hidden">
+            <div class="flex flex-col md:flex-row md:space-x-4">
+                <!-- Question -->
+                <div class="md:w-1/2 mb-4 md:mb-0">
+                    <h2 class="text-xl font-semibold mb-2">Your Question:</h2>
+                    <div id="display-question" class="p-4 bg-gray-50 border rounded">
+                        <!-- Question text will be inserted here -->
+                    </div>
+                </div>
+                <!-- Answer -->
+                <div class="md:w-1/2">
+                    <h2 class="text-xl font-semibold mb-2">Response:</h2>
+                    <div id="display-response" class="p-4 bg-green-50 border rounded">
+                        <!-- Response text will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
     <script>
-        const form = document.querySelector('form');
-        form.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const formData = new FormData(form);
-            const response = await fetch('/submit', {
-                method: 'POST',
-                body: formData
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('question-form');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const responseSection = document.getElementById('response-section');
+            const displayQuestion = document.getElementById('display-question');
+            const displayResponse = document.getElementById('display-response');
+            const errorMessage = document.getElementById('error-message');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                // Hide previous error messages and responses
+                errorMessage.classList.add('hidden');
+                responseSection.classList.add('hidden');
+
+                // Get the question from the textarea
+                const question = document.getElementById('question').value.trim();
+
+                if (!question) {
+                    errorMessage.textContent = 'Please enter a question.';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
+
+                // Show the loading spinner
+                loadingSpinner.classList.remove('hidden');
+
+                try {
+                    // Make the POST request to the API endpoint
+                    const response = await fetch('/api/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ question: question })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        // Handle errors returned from the server
+                        const error = data.error || 'An unknown error occurred.';
+                        throw new Error(error);
+                    }
+
+                    // Hide the loading spinner
+                    loadingSpinner.classList.add('hidden');
+
+                    // Display the question and response
+                    displayQuestion.textContent = question;
+                    displayResponse.textContent = data.response;
+
+                    responseSection.classList.remove('hidden');
+                } catch (error) {
+                    // Hide the loading spinner
+                    loadingSpinner.classList.add('hidden');
+
+                    // Display the error message
+                    errorMessage.textContent = error.message;
+                    errorMessage.classList.remove('hidden');
+                }
             });
-            const result = await response.json();
-            
-            if (result.response) {
-                // Exibe a resposta correta
-                document.getElementById('response').innerText = result.response;
-            } else if (result.error) {
-                // Exibe a mensagem de erro se houver
-                document.getElementById('response').innerText = result.error;
-            } else {
-                // Caso não tenha resposta ou erro, exibe uma mensagem padrão
-                document.getElementById('response').innerText = 'Nenhuma resposta recebida.';
-            }
         });
     </script>
 </body>
