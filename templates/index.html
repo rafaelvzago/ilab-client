@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Prompt</title>
+</head>
+<body>
+    <h1>Envie um Prompt</h1>
+    <form action="/submit" method="post">
+        <label for="prompt">Prompt:</label>
+        <textarea id="prompt" name="prompt" rows="4" cols="50"></textarea>
+        <br><br>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/submit', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            
+            if (result.response) {
+                // Exibe a resposta correta
+                document.getElementById('response').innerText = result.response;
+            } else if (result.error) {
+                // Exibe a mensagem de erro se houver
+                document.getElementById('response').innerText = result.error;
+            } else {
+                // Caso não tenha resposta ou erro, exibe uma mensagem padrão
+                document.getElementById('response').innerText = 'Nenhuma resposta recebida.';
+            }
+        });
+    </script>
+</body>
+</html>
+
