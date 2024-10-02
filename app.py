@@ -39,7 +39,7 @@ def completions():
     }
 
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload, timeout=600)
         response.raise_for_status()  # Raises HTTPError if one occurred.
         result = response.json()
 

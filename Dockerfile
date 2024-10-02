@@ -31,9 +31,5 @@ COPY . .
 # Expose the necessary port (5000)
 EXPOSE 5000
 
-# Set the default address
-ENV ADDRESS=http://127.0.0.1:8000
-
 # Command to run the application
 CMD ["python", "app.py"]
-
