@@ -4,14 +4,18 @@ import requests
 
 app = Flask(__name__)
 
-# Retrieve the address from an environment variable, defaulting to 'http://127.0.0.1:8000' if not set
-ADDRESS = os.environ.get('ADDRESS', 'http://127.0.0.1:8000')
+# Function to ensure ADDRESS includes a scheme
+def ensure_scheme(address):
+    if not address.startswith(('http://', 'https://')):
+        return 'http://' + address
+    return address
 
+# Retrieve the address from an environment variable, defaulting to 'http://127.0.0.1:8000' if not set
+ADDRESS = ensure_scheme(os.environ.get('ADDRESS', 'http://127.0.0.1:8000'))
 
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
-
 
 @app.route('/api/completions', methods=['POST'])
 def completions():
@@ -52,7 +56,6 @@ def completions():
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
     except (ValueError, KeyError, IndexError) as e:
         return jsonify({'error': f'Unexpected response format: {str(e)}'}), 500
-
 
 if __name__ == '__main__':
     # Set debug=True for development. In production, use a WSGI server like Gunicorn.
