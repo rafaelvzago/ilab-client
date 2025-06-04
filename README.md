@@ -11,7 +11,8 @@ A Flask web application that serves as a client interface for interacting with a
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-- [Docker Deployment](#docker-deployment)
+- [Docker/Podman Deployment](#dockerpodman-deployment)
+- [Kubernetes Deployment](#kubernetes-deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -19,13 +20,15 @@ A Flask web application that serves as a client interface for interacting with a
 
 - Simple web interface for interacting with an AI model.
 - RESTful API endpoint for programmatic access.
-- Docker support for containerized deployment.
+- Docker/Podman support for containerized deployment.
+- Kubernetes manifests for cluster deployment.
 
 ## Prerequisites
 
 - Python 3.10 or higher
 - pip package manager
-- Docker (optional, for container deployment)
+- Docker or Podman (optional, for container deployment)
+- Make (optional, for building with Makefile)
 
 ## Installation
 
@@ -90,7 +93,43 @@ export ADDRESS="http://api.your-aiservice.com"
      }
      ```
 
-## Docker Deployment
+## Docker/Podman Deployment
+
+### Using Makefile (Recommended)
+
+1. **Build the image locally**
+
+   ```bash
+   make build
+   ```
+
+2. **Build and tag with registry**
+
+   ```bash
+   make build-registry REGISTRY=quay.io/your-username IMAGE_TAG=latest
+   ```
+
+3. **Build and push to registry**
+
+   ```bash
+   make push REGISTRY=quay.io/your-username IMAGE_TAG=latest
+   ```
+
+4. **Clean up local images**
+
+   ```bash
+   make clean
+   ```
+
+5. **Run the container**
+
+   ```bash
+   podman run -d -p 5000:5000 --name ilab-client ilab-client:latest
+   # or with registry image
+   podman run -d -p 5000:5000 --name ilab-client quay.io/your-username/ilab-client:latest
+   ```
+
+### Manual Docker Commands
 
 1. **Build the Docker image**
 
@@ -108,6 +147,48 @@ export ADDRESS="http://api.your-aiservice.com"
 
    ```bash
    docker run -d -p 5000:5000 -e ADDRESS="http://api.your-aiservice.com" --name ilab-client ilab-client
+   ```
+
+### Manual Podman Commands
+
+1. **Build the Podman image**
+
+   ```bash
+   podman build -t ilab-client .
+   ```
+
+2. **Run the Podman container**
+
+   ```bash
+   podman run -d -p 5000:5000 --name ilab-client ilab-client
+   ```
+
+## Kubernetes Deployment
+
+The `manifests/` directory contains Kubernetes deployment files:
+
+- `deployment.yaml` - Application deployment with resource limits and health checks
+- `service.yaml` - LoadBalancer service for external access
+- `route.yaml` - OpenShift route for ingress (if using OpenShift)
+
+1. **Deploy to Kubernetes**
+
+   ```bash
+   kubectl apply -f manifests/
+   ```
+
+2. **Deploy to OpenShift**
+
+   ```bash
+   oc apply -f manifests/
+   ```
+
+3. **Update the AI service address**
+
+   Edit `manifests/deployment.yaml` and modify the `ADDRESS` environment variable, then reapply:
+
+   ```bash
+   kubectl apply -f manifests/deployment.yaml
    ```
 
 ## Contributing
