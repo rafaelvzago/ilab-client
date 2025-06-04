@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ilab-client-service
+  labels:
+    app: ilab-client
+spec:
+  selector:
+    app: ilab-client
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+    protocol: TCP
+  type: LoadBalancer

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ilab-client
+  labels:
+    app: ilab-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ilab-client
+  template:
+    metadata:
+      labels:
+        app: ilab-client
+    spec:
+      containers:
+      - name: ilab-client
+        image: ilab-client:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ADDRESS
+          value: "http://127.0.0.1:8000"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
