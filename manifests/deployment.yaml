@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: ilab-client
+        version: v1
     spec:
       containers:
       - name: ilab-client
