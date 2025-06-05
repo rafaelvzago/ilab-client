@@ -19,6 +19,7 @@ A Flask web application that serves as a client interface for interacting with A
 - [Deployment](#-deployment)
   - [Docker/Podman](#dockerpodman)
   - [Kubernetes](#kubernetes)
+  - [OpenShift Service Mesh](#openshift-service-mesh-deployment)
   - [Istio Service Mesh](#istio-service-mesh)
 - [Development](#-development)
 - [Troubleshooting](#-troubleshooting)
