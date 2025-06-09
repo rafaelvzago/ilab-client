@@ -19,8 +19,6 @@ A Flask web application that serves as a client interface for interacting with A
 - [Deployment](#-deployment)
   - [Docker/Podman](#dockerpodman)
   - [Kubernetes](#kubernetes)
-  - [OpenShift Service Mesh](#openshift-service-mesh-deployment)
-  - [Istio Service Mesh](#istio-service-mesh)
 - [Development](#-development)
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
@@ -265,6 +263,11 @@ docker run -d -p 5000:5000 \
 
 ### Kubernetes
 
+#### Prerequisites
+
+- Istio installed in cluster
+- Istio ingress gateway configured
+
 The `manifests/` directory contains Kubernetes resources:
 
 - `deployment.yaml` - Application deployment with health checks
@@ -278,180 +281,22 @@ The `manifests/` directory contains Kubernetes resources:
 # Create namespace
 kubectl create namespace ilab-chat
 
+# Enable Istio injection for the namespace
+kubectl label namespace ilab-chat istio-injection=enabled
+
 # Deploy application
 kubectl apply -f manifests/deployment.yaml -n ilab-chat
 kubectl apply -f manifests/service.yaml -n ilab-chat
 
+# Deploy Istio resources (Gateway and VirtualService)
+kubectl apply -f manifests/gateway.yaml -n ilab-chat
+kubectl apply -f manifests/virtualservice.yaml -n ilab-chat
+
 # Check deployment
 kubectl get pods -n ilab-chat
 kubectl get services -n ilab-chat
+kubectl get gateway,virtualservice -n ilab-chat
 ```
-
-#### OpenShift Deployment
-
-```bash
-# Create project
-oc new-project ilab-chat
-
-# Deploy application
-oc apply -f manifests/ -n ilab-chat
-
-# Check deployment
-oc get pods -n ilab-chat
-oc get routes -n ilab-chat
-```
-
-#### OpenShift Service Mesh Deployment
-
-##### Prerequisites
-
-1. **Install Red Hat OpenShift Service Mesh Operator**
-   ```bash
-   # Install the Service Mesh Operator from OperatorHub
-   oc apply -f - <<EOF
-   apiVersion: operators.coreos.com/v1alpha1
-   kind: Subscription
-   metadata:
-     name: servicemeshoperator
-     namespace: openshift-operators
-   spec:
-     channel: stable
-     name: servicemeshoperator
-     source: redhat-operators
-     sourceNamespace: openshift-marketplace
-   EOF
-   ```
-
-2. **Install Kiali Operator**
-   ```bash
-   oc apply -f - <<EOF
-   apiVersion: operators.coreos.com/v1alpha1
-   kind: Subscription
-   metadata:
-     name: kiali-ossm
-     namespace: openshift-operators
-   spec:
-     channel: stable
-     name: kiali-ossm
-     source: redhat-operators
-     sourceNamespace: openshift-marketplace
-   EOF
-   ```
-
-3. **Install Red Hat OpenShift distributed tracing platform (Jaeger)**
-   ```bash
-   oc apply -f - <<EOF
-   apiVersion: operators.coreos.com/v1alpha1
-   kind: Subscription
-   metadata:
-     name: jaeger-product
-     namespace: openshift-operators
-   spec:
-     channel: stable
-     name: jaeger-product
-     source: redhat-operators
-     sourceNamespace: openshift-marketplace
-   EOF
-   ```
-
-##### Service Mesh Control Plane Setup
-
-1. **Create Service Mesh Control Plane**
-   ```bash
-   # Apply the istio installation manifest
-   oc apply -f manifests/istio-installation.yaml
-   ```
-
-2. **Wait for control plane to be ready**
-   ```bash
-   oc wait --for condition=Ready -n istio-system smcp/basic --timeout=300s
-   ```
-
-3. **Create Service Mesh Member Roll**
-   ```bash
-   oc apply -f - <<EOF
-   apiVersion: maistra.io/v1
-   kind: ServiceMeshMemberRoll
-   metadata:
-     name: default
-     namespace: istio-system
-   spec:
-     members:
-       - ilab-chat
-   EOF
-   ```
-
-##### Application Deployment
-
-1. **Create project and deploy application**
-   ```bash
-   # Create project
-   oc new-project ilab-chat
-   
-   # Deploy all manifests
-   oc apply -f manifests/ -n ilab-chat
-   ```
-
-2. **Verify deployment**
-   ```bash
-   # Check pods (should show both app and istio-proxy containers)
-   oc get pods -n ilab-chat
-   
-   # Check services and routes
-   oc get svc,route -n ilab-chat
-   
-   # Check service mesh configuration
-   oc get gateway,virtualservice -n ilab-chat
-   ```
-
-3. **Access the application**
-   ```bash
-   # Get the route URL
-   export ROUTE_URL=$(oc get route istio-gateway -n ilab-chat -o jsonpath='{.spec.host}')
-   
-   # Access via service mesh
-   curl -H "Host: your-domain.com" https://$ROUTE_URL/ilabchat
-   ```
-
-##### Accessing Service Mesh Console
-
-1. **Get Kiali console URL**
-   ```bash
-   oc get route kiali -n istio-system -o jsonpath='{.spec.host}'
-   ```
-
-2. **Login with OpenShift credentials** and navigate to the `ilab-chat` namespace to monitor traffic and service mesh topology.
-
-### Istio Service Mesh
-
-#### Prerequisites
-
-- Istio installed in cluster
-- Istio ingress gateway configured
-
-#### Deployment Steps
-
-1. **Enable Istio injection**
-   ```bash
-   kubectl label namespace ilab-chat istio-injection=enabled
-   ```
-
-2. **Deploy application**
-   ```bash
-   kubectl apply -f manifests/ -n ilab-chat
-   ```
-
-3. **Restart deployment for sidecar injection**
-   ```bash
-   kubectl rollout restart deployment/ilab-client -n ilab-chat
-   ```
-
-4. **Verify deployment**
-   ```bash
-   kubectl get pods -n ilab-chat
-   kubectl get gateway,virtualservice -n ilab-chat
-   ```
-
 #### Accessing via Istio Ingress
 
 **Get ingress details:**
