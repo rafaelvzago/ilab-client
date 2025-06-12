@@ -2,14 +2,21 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ilab-client-service
+  namespace: ilab-chat
   labels:
-    app: ilab-client
+    app.kubernetes.io/name: ilab-client
+    app.kubernetes.io/instance: ilab-client-v1
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: ilab-chat
+    app.kubernetes.io/managed-by: kubectl
 spec:
   selector:
     app: ilab-client
   ports:
-  - name: http
-    port: 5000
-    targetPort: 5000
-    protocol: TCP
-  type: ClusterIP
+    - name: http
+      port: 5000
+      targetPort: 5000
+      protocol: TCP
+  type: LoadBalancer
+  sessionAffinity: None

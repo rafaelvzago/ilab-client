@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ilab-client
+  namespace: ilab-chat
   labels:
     app: ilab-client
 spec:
@@ -22,7 +23,7 @@ spec:
         - containerPort: 5000
         env:
         - name: ADDRESS
-          value: "http://127.0.0.1:8000"
+          value: "http://instructlab:8000"
         resources:
           requests:
             memory: "128Mi"
