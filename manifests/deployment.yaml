@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: ilab-client
-        image: quay.io/rzago/ilab-client:latest
+        image: quay.io/rzago/ilab-client:v2
         ports:
         - containerPort: 5000
         env:

@@ -7,18 +7,30 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233B82F6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E">
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-md rounded-lg p-8 w-[95%] h-[95vh] flex flex-col">
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center transition-colors duration-300">
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-8 w-[95%] h-[95vh] flex flex-col transition-colors duration-300">
         <div class="flex items-center justify-between mb-6">
-            <div></div>
-            <h1 class="text-2xl font-bold text-center flex items-center justify-center">
+            <button id="dark-mode-toggle" class="text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Toggle dark mode">
+                <svg id="sun-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <svg id="moon-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+            <h1 class="text-2xl font-bold text-center flex items-center justify-center text-gray-900 dark:text-white">
                 <svg class="w-8 h-8 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 Ask a Question
             </h1>
-            <button id="clear-history" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100" title="Clear chat history">
+            <button id="clear-history" class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" title="Clear chat history">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
@@ -26,8 +38,8 @@
         </div>
 
         <!-- Error Message -->
-        <div id="error-message" class="mb-4 p-4 text-red-700 bg-red-100 rounded hidden flex items-center">
-            <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="error-message" class="mb-4 p-4 text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded hidden flex items-center">
+            <svg class="w-5 h-5 mr-2 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
             <span id="error-text"><!-- Error text will be inserted here --></span>
@@ -37,17 +49,17 @@
         <div id="loading-spinner" class="hidden"></div>
 
         <!-- Chat Messages Container -->
-        <div id="chat-container" class="flex-1 mb-6 bg-gray-50 border rounded-lg overflow-y-auto p-4 space-y-4">
+        <div id="chat-container" class="flex-1 mb-6 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-y-auto p-4 space-y-4">
             <!-- Chat messages will be appended here -->
         </div>
 
         <!-- Form moved to bottom -->
         <form id="question-form" class="mt-auto">
             <div class="mb-4">
-                <label for="question" class="block text-gray-700 font-semibold mb-2">Type your message:</label>
+                <label for="question" class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Type your message:</label>
                 <div class="flex items-center space-x-2">
-                    <textarea id="question" name="question" rows="1" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-10 transition-all duration-200 ease-in-out" placeholder="Ask me anything..." required></textarea>
-                    <button type="submit" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center h-10 w-10">
+                    <textarea id="question" name="question" rows="1" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-10 transition-all duration-200 ease-in-out" placeholder="Ask me anything..." required></textarea>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center h-10 w-10">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
@@ -56,14 +68,14 @@
             </div>
             <!-- Backend Service Status -->
             <div class="flex justify-end">
-                <div id="backend-status" class="flex items-center space-x-2 text-sm text-gray-600">
+                <div id="backend-status" class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                     <div id="status-indicator" class="w-4 h-4">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
                         </svg>
                     </div>
                     <span id="status-text">Checking Ilab Server...</span>
-                    <span id="status-address" class="text-xs text-gray-500"></span>
+                    <span id="status-address" class="text-xs text-gray-500 dark:text-gray-400"></span>
                 </div>
             </div>
         </form>
@@ -81,13 +93,16 @@
             const statusText = document.getElementById('status-text');
             const statusAddress = document.getElementById('status-address');
             const clearHistoryBtn = document.getElementById('clear-history');
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
 
             function createMessage(text, isUser = false) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
                 
                 const messageContent = document.createElement('div');
-                messageContent.className = `max-w-[70%] p-3 rounded-lg ${isUser ? 'bg-blue-500 text-white' : 'bg-white border'}`;
+                messageContent.className = `max-w-[70%] p-3 rounded-lg ${isUser ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white'}`;
                 
                 const icon = document.createElement('div');
                 icon.className = `flex items-center mb-1 ${isUser ? 'justify-end' : 'justify-start'}`;
@@ -134,7 +149,7 @@
                 messageDiv.id = 'typing-indicator';
                 
                 const messageContent = document.createElement('div');
-                messageContent.className = 'max-w-[70%] p-3 rounded-lg bg-white border';
+                messageContent.className = 'max-w-[70%] p-3 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white';
                 
                 const icon = document.createElement('div');
                 icon.className = 'flex items-center mb-1';
@@ -244,6 +259,40 @@
                 chatContainer.innerHTML = '';
                 errorMessage.classList.add('hidden');
             });
+
+            // Dark mode functionality
+            function toggleDarkMode() {
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
+                
+                // Toggle icons
+                if (isDark) {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+                
+                // Store preference
+                localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+            }
+
+            // Initialize dark mode from localStorage
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                // Default to light mode
+                document.documentElement.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+
+            // Dark mode toggle event listener
+            darkModeToggle.addEventListener('click', toggleDarkMode);
 
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
