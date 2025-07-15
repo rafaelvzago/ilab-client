@@ -17,6 +17,23 @@ ADDRESS = ensure_scheme(os.environ.get('ADDRESS', 'http://127.0.0.1:8000'))
 def index():
     return render_template('index.html')
 
+@app.route('/api/backend-status', methods=['GET'])
+def backend_status():
+    try:
+        # Try to reach the backend service
+        url = f'{ADDRESS}/v1/completions'
+        response = requests.get(ADDRESS, timeout=5)
+        # If we get any response (even 404), the service is reachable
+        return jsonify({
+            'status': 'online',
+            'address': ADDRESS
+        })
+    except requests.exceptions.RequestException:
+        return jsonify({
+            'status': 'offline',
+            'address': ADDRESS
+        })
+
 @app.route('/api/completions', methods=['POST'])
 def completions():
     data = request.get_json()

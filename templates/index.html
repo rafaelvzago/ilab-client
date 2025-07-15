@@ -4,56 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question & Answer App</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233B82F6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E">
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-md rounded-lg p-8 max-w-4xl w-full">
-        <h1 class="text-2xl font-bold mb-6 text-center">Ask a Question</h1>
+    <div class="bg-white shadow-md rounded-lg p-8 w-[95%] h-[95vh] flex flex-col">
+        <div class="flex items-center justify-between mb-6">
+            <div></div>
+            <h1 class="text-2xl font-bold text-center flex items-center justify-center">
+                <svg class="w-8 h-8 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Ask a Question
+            </h1>
+            <button id="clear-history" class="text-gray-500 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100" title="Clear chat history">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>
+        </div>
 
         <!-- Error Message -->
-        <div id="error-message" class="mb-4 p-4 text-red-700 bg-red-100 rounded hidden">
-            <!-- Error text will be inserted here -->
+        <div id="error-message" class="mb-4 p-4 text-red-700 bg-red-100 rounded hidden flex items-center">
+            <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            <span id="error-text"><!-- Error text will be inserted here --></span>
         </div>
 
-        <!-- Form -->
-        <form id="question-form" class="mb-6">
+        <!-- Loading Spinner (hidden, will be moved to chat) -->
+        <div id="loading-spinner" class="hidden"></div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-container" class="flex-1 mb-6 bg-gray-50 border rounded-lg overflow-y-auto p-4 space-y-4">
+            <!-- Chat messages will be appended here -->
+        </div>
+
+        <!-- Form moved to bottom -->
+        <form id="question-form" class="mt-auto">
             <div class="mb-4">
-                <label for="question" class="block text-gray-700 font-semibold mb-2">Enter your question:</label>
-                <textarea id="question" name="question" rows="4" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., What is the capital of France?" required></textarea>
+                <label for="question" class="block text-gray-700 font-semibold mb-2">Type your message:</label>
+                <div class="flex items-center space-x-2">
+                    <textarea id="question" name="question" rows="1" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none h-10 transition-all duration-200 ease-in-out" placeholder="Ask me anything..." required></textarea>
+                    <button type="submit" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition-colors flex items-center justify-center h-10 w-10">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <div class="text-center">
-                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors">Submit</button>
+            <!-- Backend Service Status -->
+            <div class="flex justify-end">
+                <div id="backend-status" class="flex items-center space-x-2 text-sm text-gray-600">
+                    <div id="status-indicator" class="w-4 h-4">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                    </div>
+                    <span id="status-text">Checking Ilab Server...</span>
+                    <span id="status-address" class="text-xs text-gray-500"></span>
+                </div>
             </div>
         </form>
-
-        <!-- Loading Spinner -->
-        <div id="loading-spinner" class="flex justify-center items-center mb-6 hidden">
-            <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>
-        </div>
-
-        <!-- Response Section -->
-        <div id="response-section" class="mt-8 hidden">
-            <div class="flex flex-col md:flex-row md:space-x-4">
-                <!-- Question -->
-                <div class="md:w-1/2 mb-4 md:mb-0">
-                    <h2 class="text-xl font-semibold mb-2">Your Question:</h2>
-                    <div id="display-question" class="p-4 bg-gray-50 border rounded">
-                        <!-- Question text will be inserted here -->
-                    </div>
-                </div>
-                <!-- Answer -->
-                <div class="md:w-1/2">
-                    <h2 class="text-xl font-semibold mb-2">Response:</h2>
-                    <div id="display-response" class="p-4 bg-green-50 border rounded">
-                        <!-- Response text will be inserted here -->
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- JavaScript -->
@@ -61,29 +74,204 @@
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('question-form');
             const loadingSpinner = document.getElementById('loading-spinner');
-            const responseSection = document.getElementById('response-section');
-            const displayQuestion = document.getElementById('display-question');
-            const displayResponse = document.getElementById('display-response');
+            const chatContainer = document.getElementById('chat-container');
             const errorMessage = document.getElementById('error-message');
+            const questionTextarea = document.getElementById('question');
+            const statusIndicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            const statusAddress = document.getElementById('status-address');
+            const clearHistoryBtn = document.getElementById('clear-history');
+
+            function createMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = `max-w-[70%] p-3 rounded-lg ${isUser ? 'bg-blue-500 text-white' : 'bg-white border'}`;
+                
+                const icon = document.createElement('div');
+                icon.className = `flex items-center mb-1 ${isUser ? 'justify-end' : 'justify-start'}`;
+                
+                const svg = document.createElement('svg');
+                svg.className = 'w-4 h-4 mr-2';
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'currentColor');
+                svg.setAttribute('viewBox', '0 0 24 24');
+                
+                const path = document.createElement('path');
+                path.setAttribute('stroke-linecap', 'round');
+                path.setAttribute('stroke-linejoin', 'round');
+                path.setAttribute('stroke-width', '2');
+                
+                const label = document.createElement('span');
+                label.className = 'text-sm font-medium';
+                
+                if (isUser) {
+                    path.setAttribute('d', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z');
+                    label.textContent = 'You';
+                } else {
+                    path.setAttribute('d', 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z');
+                    label.textContent = 'AI';
+                }
+                
+                svg.appendChild(path);
+                icon.appendChild(svg);
+                icon.appendChild(label);
+                
+                const textDiv = document.createElement('div');
+                textDiv.textContent = text;
+                
+                messageContent.appendChild(icon);
+                messageContent.appendChild(textDiv);
+                messageDiv.appendChild(messageContent);
+                
+                return messageDiv;
+            }
+
+            function createTypingIndicator() {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-start';
+                messageDiv.id = 'typing-indicator';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'max-w-[70%] p-3 rounded-lg bg-white border';
+                
+                const icon = document.createElement('div');
+                icon.className = 'flex items-center mb-1';
+                
+                const svg = document.createElement('svg');
+                svg.className = 'w-4 h-4 mr-2';
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'currentColor');
+                svg.setAttribute('viewBox', '0 0 24 24');
+                
+                const path = document.createElement('path');
+                path.setAttribute('stroke-linecap', 'round');
+                path.setAttribute('stroke-linejoin', 'round');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('d', 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z');
+                
+                const label = document.createElement('span');
+                label.className = 'text-sm font-medium';
+                label.textContent = 'AI';
+                
+                svg.appendChild(path);
+                icon.appendChild(svg);
+                icon.appendChild(label);
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'flex items-center space-x-3';
+                typingDiv.innerHTML = `
+                    <span class="text-gray-500 text-sm">AI is typing</span>
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0ms; animation-duration: 1.4s;"></div>
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s; animation-duration: 1.4s;"></div>
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.4s; animation-duration: 1.4s;"></div>
+                    </div>
+                `;
+                
+                messageContent.appendChild(icon);
+                messageContent.appendChild(typingDiv);
+                messageDiv.appendChild(messageContent);
+                
+                return messageDiv;
+            }
+
+            function scrollToBottom() {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function updateBackendStatus(status, address) {
+                statusAddress.textContent = address;
+                
+                if (status === 'online') {
+                    statusIndicator.innerHTML = `
+                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    `;
+                    statusText.textContent = 'Ilab Server online';
+                    statusText.className = 'text-sm text-green-600';
+                } else if (status === 'offline') {
+                    statusIndicator.innerHTML = `
+                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    `;
+                    statusText.textContent = 'Ilab Server offline';
+                    statusText.className = 'text-sm text-red-600';
+                } else {
+                    statusIndicator.innerHTML = `
+                        <svg class="w-4 h-4 text-yellow-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    `;
+                    statusText.textContent = 'Checking Ilab Server...';
+                    statusText.className = 'text-sm text-yellow-600';
+                }
+            }
+
+            async function checkBackendStatus() {
+                try {
+                    const response = await fetch('/api/backend-status');
+                    const data = await response.json();
+                    updateBackendStatus(data.status, data.address);
+                } catch (error) {
+                    updateBackendStatus('offline', 'Unknown');
+                }
+            }
+
+            // Check backend status on page load
+            checkBackendStatus();
+            
+            // Check backend status every 30 seconds
+            setInterval(checkBackendStatus, 30000);
+
+            // Add Enter key submission to textarea
+            questionTextarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const submitEvent = new Event('submit', {
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    form.dispatchEvent(submitEvent);
+                }
+            });
+
+            // Clear history button functionality
+            clearHistoryBtn.addEventListener('click', function() {
+                chatContainer.innerHTML = '';
+                errorMessage.classList.add('hidden');
+            });
 
             form.addEventListener('submit', async function (e) {
-                e.preventDefault(); // Prevent the default form submission
+                e.preventDefault();
 
-                // Hide previous error messages and responses
+                // Hide previous error messages
                 errorMessage.classList.add('hidden');
-                responseSection.classList.add('hidden');
 
                 // Get the question from the textarea
-                const question = document.getElementById('question').value.trim();
+                const question = questionTextarea.value.trim();
 
                 if (!question) {
-                    errorMessage.textContent = 'Please enter a question.';
+                    document.getElementById('error-text').textContent = 'Please enter a question.';
                     errorMessage.classList.remove('hidden');
                     return;
                 }
 
-                // Show the loading spinner
-                loadingSpinner.classList.remove('hidden');
+                // Add user message to chat
+                const userMessage = createMessage(question, true);
+                chatContainer.appendChild(userMessage);
+                scrollToBottom();
+
+                // Clear the textarea
+                questionTextarea.value = '';
+
+                // Show typing indicator
+                const typingIndicator = createTypingIndicator();
+                chatContainer.appendChild(typingIndicator);
+                scrollToBottom();
 
                 try {
                     // Make the POST request to the API endpoint
@@ -103,21 +291,28 @@
                         throw new Error(error);
                     }
 
-                    // Hide the loading spinner
-                    loadingSpinner.classList.add('hidden');
+                    // Remove typing indicator
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator && typingIndicator.parentNode) {
+                        typingIndicator.parentNode.removeChild(typingIndicator);
+                    }
 
-                    // Display the question and response
-                    displayQuestion.textContent = question;
-                    displayResponse.textContent = data.response;
+                    // Add AI response to chat
+                    const aiMessage = createMessage(data.response, false);
+                    chatContainer.appendChild(aiMessage);
+                    scrollToBottom();
 
-                    responseSection.classList.remove('hidden');
                 } catch (error) {
-                    // Hide the loading spinner
-                    loadingSpinner.classList.add('hidden');
+                    // Remove typing indicator
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator && typingIndicator.parentNode) {
+                        typingIndicator.parentNode.removeChild(typingIndicator);
+                    }
 
-                    // Display the error message
-                    errorMessage.textContent = error.message;
-                    errorMessage.classList.remove('hidden');
+                    // Add error message to chat
+                    const errorMsg = createMessage(`Error: ${error.message}`, false);
+                    chatContainer.appendChild(errorMsg);
+                    scrollToBottom();
                 }
             });
         });
