@@ -10,6 +10,8 @@ A Flask web application that serves as a client interface for interacting with A
 
 This application is a Flask-based web client that provides an interface for interacting with AI language model APIs. It consists of two main components working together to deliver a seamless user experience.
 
+![Chat](img/chat.png)
+
 ### Technologies Used
 
 - **Backend**: Flask (Python 3.10+)
